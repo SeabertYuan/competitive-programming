@@ -1,2 +1,7 @@
-*.swo
-*.test
+# Ignores all
+*
+
+# Unignore all cpp, java files
+!*.cpp
+!*.java
+!*.md
