@@ -5,3 +5,5 @@
 !*.cpp
 !*.java
 !*.md
+!*/
+!.gitignore
