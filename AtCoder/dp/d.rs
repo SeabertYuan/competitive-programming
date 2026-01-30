@@ -11,35 +11,41 @@ fn main() {
     let mut weights = vec![0; n as usize];
     let mut values = vec![0; n as usize];
 
-    for i in 0..n {
+    for i in 0..(n as usize) {
         input.clear();
         stdin().read_line(&mut input).unwrap();
         let line: Vec<i32> = input.trim().split_whitespace().map(|x| x.parse().unwrap()).collect();
         weights[i] = line[0];
         values[i] = line[1];
     }
-    // 2d dp array, [w, n]
-    // given the ith item and W capacity:
-    // if i == 0:
-    //      only one way, 0
-    // if capacity == 0:
-    //      only 1 way, 0
-    // if i > 0 && capacity > 0:
-    //      pick maximum between [i-1] (not picking)
-    //      or pick [i-1] where capacity is constrained by capacity - w_i
-    //      
-    // Must store 
-    let mut dp = vec![vec![0; n as usize + 1]; w as usize + 1];
-    for i in 1..=w {
-        for j in 1..=n {
-            let l = std::cmp::max(dp[i-1][j], dp[i-w[i]][j] + v[i]);
-            let u = std::cmp::max(dp[i][j-1], dp[i][j]);
-            let lu = std::cmp::max(dp[i-1][j-1], dp[i][j]);
-            dp[i][j] = std::cmp::max(l, u);
-            dp[i][j] = std::cmp::max(d[i][j], lu);
+
+    let mut mem = std::collections::HashMap::new();
+
+    fn max_cost(cap: i32, n: i32, weights: &[i32], values: &[i32], mem: &mut std::collections::HashMap<(i32, i32), i64>) -> i64 {
+        if n == 0 {
+            if cap >= weights[0] {
+                let val = values[0] as i64;
+                mem.insert((cap, n), val);
+                return val;
+            } else {
+                mem.insert((cap, n), 0i64);
+                return 0i64;
+            }
+        }
+
+        if let Some(val) = mem.get(&(cap, n)) {
+            return *val;
+        }
+
+        if cap - weights[n as usize] >= 0 {
+            let val = std::cmp::max(max_cost(cap - weights[n as usize], n - 1, weights, values, mem) + values[n as usize] as i64, max_cost(cap, n - 1, weights, values, mem));
+            mem.insert((cap, n), val);
+            return val;
+        } else {
+            return max_cost(cap, n - 1, weights, values, mem);
         }
     }
-    dp[0][0] = 0, dp[0][1] = 0, dp[1][0] = 0
 
-    dp[1][1] = 
+    let ans = max_cost(w, n-1, &weights, &values, &mut mem);
+    println!("{ans}");
 }
